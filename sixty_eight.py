@@ -15,12 +15,7 @@ class SixtyEightInterpreter:
         self.last_margins = None  # [left_x, right_x, top_y, bottom_y]
 
     def interpret(self, frame):
-        frame_master = CuttedFrame(frame, self.last_margins, PIXEL_ADDITION_TO_FACE_X, PIXEL_ADDITION_TO_FACE_Y)
-
-        result = self.fastest_result_possible(frame_master)
-
-        #  Get the last margins from the frame
-        self.last_margins = frame_master.get_new_margins(result[0])
+        result = self.get_opencv_result(frame)
 
         #  Normalize the data and return the norm vector
         anchor_point = result[0, 8, :]
@@ -30,22 +25,32 @@ class SixtyEightInterpreter:
 
         return result
 
-    def fastest_result_possible(self, frame_master):
+    def get_opencv_result(self, frame):
+        frame_master = CuttedFrame(frame, self.last_margins, PIXEL_ADDITION_TO_FACE_X, PIXEL_ADDITION_TO_FACE_Y)
+
         #  Get the cutted frame
         cut_frame = frame_master.get_cut_frame()
 
+        result = self.fastest_result_possible(frame, cut_frame)
+
+        #  Update the frame to by inside 1080 x 1920 px
+        frame_master.update_frame_by_cut(cut_frame)
+        frame_master.update_result_by_cut(result)
+
+        #  Get the last margins from the frame
+        self.last_margins = frame_master.get_new_margins(result[0])
+
+        return result
+
+    def fastest_result_possible(self, frame, cut_frame):
         result = self.opencv_face_detection(cut_frame)
         if len(result) == 0:
-            result = self.opencv_face_detection(cut_frame)
+            result = self.opencv_face_detection(frame)
 
         result = np.array(result)
 
         if len(result) == 0:
             return None
-
-        #  Update the frame to by inside 1080 x 1920 px
-        frame_master.update_frame_by_cut(cut_frame)
-        frame_master.update_result_by_cut(result)
 
         return result
 

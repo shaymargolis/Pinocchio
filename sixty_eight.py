@@ -31,7 +31,7 @@ class SixtyEightInterpreter:
 
     def fastest_result_possible(self, frame_head):
         #  Get the cutted frame
-        cut_frame = frame_head.get_cut_frame(frame)
+        cut_frame = frame_head.get_cut_frame(frame_head.get_frame())
 
         result = self.opencv_face_detection(cut_frame)
         if len(result) == 0:

@@ -1,9 +1,11 @@
 import numpy as np
 
 class CuttedFrame:
-    def __init__(self, frame, last_margins):
+    def __init__(self, frame, last_margins, pixel_addition_x, pixel_addition_y):
         self.frame = frame
         self.last_margins = last_margins
+        self.pixel_addition_x = pixel_addition_x
+        self.pixel_addition_y = pixel_addition_y
 
     def get_frame(self):
         return self.frame
@@ -44,10 +46,10 @@ class CuttedFrame:
     def get_new_margins(self, result_vector):
         height, width = self.frame.shape[0], self.frame.shape[1]
 
-        left_x = max(0, np.min(result_vector[:, 0])-PIXEL_ADDITION_TO_FACE_X)
-        right_x = min(width, np.max(result_vector[:, 0])+PIXEL_ADDITION_TO_FACE_X)
+        left_x = max(0, np.min(result_vector[:, 0])-self.pixel_addition_x)
+        right_x = min(width, np.max(result_vector[:, 0])+self.pixel_addition_x)
 
-        top_y = max(0, np.min(result_vector[:, 1])-PIXEL_ADDITION_TO_FACE_Y)
-        bottom_y = min(height, np.max(result_vector[:, 1])+PIXEL_ADDITION_TO_FACE_Y)
+        top_y = max(0, np.min(result_vector[:, 1])-self.pixel_addition_y)
+        bottom_y = min(height, np.max(result_vector[:, 1])+self.pixel_addition_y)
 
         return [left_x, right_x, top_y, bottom_y]

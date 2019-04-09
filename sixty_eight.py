@@ -1,6 +1,7 @@
 import cv2
 import dlib
 from cutted_frame import CuttedFrame
+import numpy as np
 
 
 PIXEL_ADDITION_TO_FACE_X = 100
@@ -14,7 +15,7 @@ class SixtyEightInterpreter:
         self.last_margins = None  # [left_x, right_x, top_y, bottom_y]
 
     def interpret(self, frame):
-        frame_master = CuttedFrame(frame, self.last_margins)
+        frame_master = CuttedFrame(frame, self.last_margins, PIXEL_ADDITION_TO_FACE_X, PIXEL_ADDITION_TO_FACE_Y)
 
         result = self.fastest_result_possible(frame_master)
 
@@ -29,9 +30,9 @@ class SixtyEightInterpreter:
 
         return result
 
-    def fastest_result_possible(self, frame_head):
+    def fastest_result_possible(self, frame_master):
         #  Get the cutted frame
-        cut_frame = frame_head.get_cut_frame(frame_head.get_frame())
+        cut_frame = frame_master.get_cut_frame()
 
         result = self.opencv_face_detection(cut_frame)
         if len(result) == 0:

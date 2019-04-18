@@ -80,6 +80,9 @@ class PersonAnalyzer:
     for all the videos in the folder
     """
     def analyze_folder(self, name):
+        #  Print message
+        print("Starting analyze of " + name + ":")
+
         #  Create result DataFrame
         result = pd.DataFrame()
 
@@ -109,6 +112,8 @@ class PersonAnalyzer:
 
             data = pd.DataFrame(result_t)
             result = result.append(data)
+
+        pg.close()
 
         return result
 

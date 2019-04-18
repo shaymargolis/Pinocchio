@@ -20,4 +20,4 @@ class ImageSource:
         return self.is_finished_bool
 
     def get_length(self):
-        return int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))

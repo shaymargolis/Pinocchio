@@ -4,11 +4,13 @@ import pandas as pd
 
 import numpy as np
 
-from ProgressBar import ProgressBar
+from tqdm import tqdm
 from analyzer import Analyzer
 from image_source import ImageSource
 from sixty_eight import SixtyEightInterpreter
 from linear_learner import LinearLearner
+
+from sklearn.model_selection import train_test_split
 
 class PersonAnalyzer:
     """
@@ -24,15 +26,15 @@ class PersonAnalyzer:
     of raw data
     """
     def analyze_data(self):
-        nl = self.analyze_folder("NL")
-        pl = self.analyze_folder("PL")
-        nt = self.analyze_folder("NT")
-        pt = self.analyze_folder("PT")
+        self.nl = self.analyze_folder("NL")
+        self.pl = self.analyze_folder("PL")
+        self.nt = self.analyze_folder("NT")
+        self.pt = self.analyze_folder("PT")
 
-        nl.to_csv(self.folder + "/nl.csv")
-        pl.to_csv(self.folder + "/pl.csv")
-        nt.to_csv(self.folder + "/nt.csv")
-        pt.to_csv(self.folder + "/pt.csv")
+        self.nl.to_csv(self.folder + "/nl.csv")
+        self.pl.to_csv(self.folder + "/pl.csv")
+        self.nt.to_csv(self.folder + "/nt.csv")
+        self.pt.to_csv(self.folder + "/pt.csv")
 
 
     """
@@ -40,7 +42,37 @@ class PersonAnalyzer:
     splits the data into train&test
     """
     def linear_regression(self):
-        pass
+        #  Create dummies of the Types
+        self.nl["Type"] = "NL"
+        self.pl["Type"] = "PL"
+        self.nt["Type"] = "NT"
+        self.pt["Type"] = "PT"
+
+        full = nl.append([pl, nt, pt])
+
+        y_data = pd.get_dummies(full.loc[:, 'Type'])
+        full = full.drop(['Unnamed: 0', 'Type'], axis=1)
+
+        #  Create train & test data
+        X_train, X_test, y_train, y_test = train_test_split(np.array(full), np.array(y_data))
+
+        #  Learn the data and check for success
+        learner = LinearLearner()
+        learner.learn(X_train, y_train)
+
+        #  Get the predicted output for X_test and compare to
+        #  the expected output
+        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1)
+        y_test = pd.DataFrame(y_test).idxmax(axis=1)
+
+        #  Count number of failures
+        result = np.array(y_test) - np.array(y_test_predict)
+
+        total = len(X_test)
+        curr = total - np.count_nonzero(result)
+
+        #  Print the success rate
+        print("Total success rate %.2f%%" % (curr/total * 100))
 
     """
     Analyzes (Gets features of) a specific folder
@@ -56,19 +88,23 @@ class PersonAnalyzer:
         root = self.folder + "/" + name
         file_list = os.listdir(root)
 
-        #  Create an ProgressBar
-        pg = ProgressBar(len(file_list))
-
+        #  Create ImageResource list
+        images = []
+        length_sum = 0
         for file in file_list:
-            #  Update the progressBar
-            pg.update()
-
-            #  Analyze the file
             path_file = root + "/" + file
-
             source = ImageSource(path_file)
+            images.append(source)
+
+            length_sum += source.get_length()
+
+        #  Create an ProgressBar
+        pg = tqdm(total=length_sum)
+
+        for source in images:
+            #  Analayze the video
             orig_interpreter = SixtyEightInterpreter()
-            analyzer = Analyzer(source, orig_interpreter, False)
+            analyzer = Analyzer(source, orig_interpreter, False, pg)
             result_t = np.array(analyzer.start())
 
             data = pd.DataFrame(result_t)
@@ -76,8 +112,12 @@ class PersonAnalyzer:
 
         return result
 
-pa = PersonAnalyzer("roy_amir")
+# pa = PersonAnalyzer("Videos/roy_amir")
+#  pa.analyze_data()
+
+pa = PersonAnalyzer("Videos/roy_amir")
 pa.analyze_data()
+pa.linear_regression()
 
 """source = ImageSource("Videos/roy amir telling the truth.MOV")
 orig_interpreter = SixtyEightInterpreter()

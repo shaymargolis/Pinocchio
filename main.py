@@ -43,12 +43,18 @@ class PersonAnalyzer:
     """
     def linear_regression(self):
         #  Create dummies of the Types
+
+        self.nl = pd.read_csv(self.folder + "/nl.csv")
+        self.pl = pd.read_csv(self.folder + "/pl.csv")
+        self.nt = pd.read_csv(self.folder + "/nt.csv")
+        self.pt = pd.read_csv(self.folder + "/pt.csv")
+
         self.nl["Type"] = "NL"
         self.pl["Type"] = "PL"
         self.nt["Type"] = "NT"
         self.pt["Type"] = "PT"
 
-        full = nl.append([pl, nt, pt])
+        full = self.nl.append([self.pl, self.nt, self.pt])
 
         y_data = pd.get_dummies(full.loc[:, 'Type'])
         full = full.drop(['Unnamed: 0', 'Type'], axis=1)
@@ -72,7 +78,7 @@ class PersonAnalyzer:
         curr = total - np.count_nonzero(result)
 
         #  Print the success rate
-        print("Total success rate %.2f%%" % (curr/total * 100))
+        print("Total success rate: %.2f%%" % (curr/total * 100))
 
     """
     Analyzes (Gets features of) a specific folder
@@ -117,40 +123,6 @@ class PersonAnalyzer:
 
         return result
 
-# pa = PersonAnalyzer("Videos/roy_amir")
-#  pa.analyze_data()
-
 pa = PersonAnalyzer("Videos/roy_amir")
-pa.analyze_data()
+# pa.analyze_data()
 pa.linear_regression()
-
-"""source = ImageSource("Videos/roy amir telling the truth.MOV")
-orig_interpreter = SixtyEightInterpreter()
-analyzer = Analyzer(source, orig_interpreter)
-result_t = np.array(analyzer.start())
-
-result_ty = np.ones(len(result_t)) * 1
-
-data = pd.DataFrame(result_t)
-data.to_csv('truth.csv')
-
-source = ImageSource("Videos/roy_amir_tru.MOV")
-orig_interpreter = SixtyEightInterpreter()
-analyzer = Analyzer(source, orig_interpreter)
-result_f = np.array(analyzer.start())
-
-data = pd.DataFrame(result_f)
-data.to_csv('false.csv')
-
-result_fy = np.zeros(len(result_f)) * 0
-
-result = np.concatenate(result_t, result_f)
-result_y = np.concatenate(result_ty, result_fy)
-
-learner = LinearLearner()
-print("A")
-learner.learn(result, result_y)
-print("B")"""
-
-#  data = pd.DataFrame(result)
-#  print(data)

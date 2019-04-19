@@ -63,12 +63,12 @@ class PersonAnalyzer:
         X_train, X_test, y_train, y_test = train_test_split(np.array(full), np.array(y_data))
 
         #  Learn the data and check for success
-        learner = LinearLearner()
-        learner.learn(X_train, y_train)
+        self.learner = LinearLearner()
+        self.learner.learn(X_train, y_train)
 
         #  Get the predicted output for X_test and compare to
         #  the expected output
-        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1)
+        y_test_predict = pd.DataFrame(self.learner.predict(X_test)).idxmax(axis=1)
         y_test = pd.DataFrame(y_test).idxmax(axis=1)
 
         #  Count number of failures
@@ -79,6 +79,55 @@ class PersonAnalyzer:
 
         #  Print the success rate
         print("Total success rate: %.2f%%" % (curr/total * 100))
+
+    """
+    Predicts the type of the video based on
+    the data and the learner.
+    """
+    def predict_type(self, data):
+        #  Get y based on learner
+        y_predict = pd.DataFrame(self.learner.predict(data)).idxmax(axis=1)
+
+        #  Get the most frequent one
+        freq = y_predict.value_counts().jdmax()
+
+        return freq
+
+    """
+    Opens a specific video type and tries to
+    guess using self.learner the type of the
+    video.
+    """
+    def analyze_video(self, root, file_list, index, display = False, pg = None):
+        #  Get the path file
+        path_file = root + "/" + file_list[index]
+        source = ImageSource(path_file)
+
+        #  Analyze data
+        orig_interpreter = SixtyEightInterpreter()
+        analyzer = Analyzer(source, orig_interpreter, False, pg)
+        result_t = np.array(analyzer.start())
+
+        data = pd.DataFrame(result_t)
+
+        return data
+
+    """
+    Returns the length in frames of a folder.
+    """
+    def get_length_of_folder(self, root, file_list):
+        #  Create ImageSource from every
+        #  file and count the total length
+        images = []
+        length_sum = 0
+        for file in file_list:
+            path_file = root + "/" + file
+            source = ImageSource(path_file)
+            images.append(source)
+
+            length_sum += source.get_length()
+
+        return length_sum
 
     """
     Analyzes (Gets features of) a specific folder
@@ -98,31 +147,25 @@ class PersonAnalyzer:
         file_list = os.listdir(root)
 
         #  Create ImageResource list
-        images = []
-        length_sum = 0
-        for file in file_list:
-            path_file = root + "/" + file
-            source = ImageSource(path_file)
-            images.append(source)
-
-            length_sum += source.get_length()
+        length_sum = self.get_length_of_folder(root, file_list)
 
         #  Create an ProgressBar
         pg = tqdm(total=length_sum)
 
-        for source in images:
-            #  Analayze the video
-            orig_interpreter = SixtyEightInterpreter()
-            analyzer = Analyzer(source, orig_interpreter, False, pg)
-            result_t = np.array(analyzer.start())
-
-            data = pd.DataFrame(result_t)
+        for i in range(len(file_list)):
+            #  Analyze the video
+            data = self.analyze_video(root, file_list, i, False, pg)
             result = result.append(data)
 
         pg.close()
 
         return result
 
-pa = PersonAnalyzer("Videos/roy_amir")
+pa = PersonAnalyzer("Videos/kaplan")
+pa.nt = pa.analyze_folder("NT")
+pa.pt = pa.analyze_folder("PT")
+
+pa.nt.to_csv(pa.folder + "/nt.csv")
+pa.pt.to_csv(pa.folder + "/pt.csv")
 # pa.analyze_data()
 pa.linear_regression()

@@ -3,6 +3,8 @@ import os
 import sys
 import pandas as pd
 
+import matplotlib.pyplot as plt
+
 import numpy as np
 
 from tqdm import tqdm
@@ -74,7 +76,7 @@ class PersonAnalyzer:
 
         #  Get the predicted output for X_test and compare to
         #  the expected output
-        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1).apply(group)
+        y_test_predict = pd.DataFrame(self.learner.predict(X_test)).idxmax(axis=1).apply(group)
         y_test = pd.DataFrame(y_test).idxmax(axis=1).apply(group)
 
         #  Count number of failures
@@ -92,10 +94,17 @@ class PersonAnalyzer:
     """
     def predict_type(self, data):
         #  Get y based on learner
-        y_predict = pd.DataFrame(self.learner.predict(data)).idxmax(axis=1)
+        y_predict = pd.DataFrame(self.learner.predict(data)).idmax(axis=1)
 
         #  Get the most frequent one
-        freq = y_predict.value_counts().jdmax()
+        freq = y_predict.value_counts()
+
+        plt.figure(dpi=250)
+        plt.title("Distribution of frames in video")
+        plt.xlabel("Predicted type")
+        plt.ylabel("# Of frames")
+        plt.plot(list(freq.index), freq, kind="bar")
+        plt.show()
 
         return freq
 
@@ -168,5 +177,5 @@ class PersonAnalyzer:
         return result
 
 # person = sys.argv[1]
-pa = PersonAnalyzer("Videos/" + person)
+pa = PersonAnalyzer("Videos/" + "kaplan")
 pa.linear_regression()

@@ -27,14 +27,13 @@ class PersonAnalyzer:
     of raw data
     """
     def analyze_data(self):
-        self.nl = self.analyze_folder("NL")
-        self.pl = self.analyze_folder("PL")
+        #self.nl = self.analyze_folder("NL")
+        #self.nl.to_csv(self.folder + "/nl.csv")
+        #self.pl = self.analyze_folder("PL")
+        #self.pl.to_csv(self.folder + "/pl.csv")
         self.nt = self.analyze_folder("NT")
-        self.pt = self.analyze_folder("PT")
-
-        self.nl.to_csv(self.folder + "/nl.csv")
-        self.pl.to_csv(self.folder + "/pl.csv")
         self.nt.to_csv(self.folder + "/nt.csv")
+        self.pt = self.analyze_folder("PT")
         self.pt.to_csv(self.folder + "/pt.csv")
 
 
@@ -92,7 +91,7 @@ class PersonAnalyzer:
     inside the main folder given in the constructor
     for all the videos in the folder
     """
-    def analyze_folder(self, name):
+    def analyze_folder(self, name, display = False):
         #  Print message
         print("Starting analyze of " + name + ":")
 
@@ -120,7 +119,7 @@ class PersonAnalyzer:
         for source in images:
             #  Analayze the video
             orig_interpreter = SixtyEightInterpreter()
-            analyzer = Analyzer(source, orig_interpreter, False, pg)
+            analyzer = Analyzer(source, orig_interpreter, display, pg)
             result_t = np.array(analyzer.start())
 
             data = pd.DataFrame(result_t)
@@ -132,5 +131,5 @@ class PersonAnalyzer:
 
 person = sys.argv[1]
 pa = PersonAnalyzer("Videos/" + person)
-# pa.analyze_data()
+pa.analyze_data()
 pa.linear_regression()

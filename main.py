@@ -160,7 +160,7 @@ class PersonAnalyzer:
 
         for i in range(len(file_list)):
             #  Analyze the video
-            data = self.analyze_video(root, file_list, i, False, pg)
+            data = self.analyze_video(root, file_list, i, display, pg)
             result = result.append(data)
 
         pg.close()

@@ -27,10 +27,10 @@ class PersonAnalyzer:
     of raw data
     """
     def analyze_data(self):
-        #self.nl = self.analyze_folder("NL")
-        #self.nl.to_csv(self.folder + "/nl.csv")
-        #self.pl = self.analyze_folder("PL")
-        #self.pl.to_csv(self.folder + "/pl.csv")
+        self.nl = self.analyze_folder("NL")
+        self.nl.to_csv(self.folder + "/nl.csv")
+        self.pl = self.analyze_folder("PL")
+        self.pl.to_csv(self.folder + "/pl.csv")
         self.nt = self.analyze_folder("NT")
         self.nt.to_csv(self.folder + "/nt.csv")
         self.pt = self.analyze_folder("PT")
@@ -167,7 +167,6 @@ class PersonAnalyzer:
 
         return result
 
-person = sys.argv[1]
+# person = sys.argv[1]
 pa = PersonAnalyzer("Videos/" + person)
-pa.analyze_data()
 pa.linear_regression()

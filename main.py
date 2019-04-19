@@ -1,5 +1,6 @@
 
 import os
+import sys
 import pandas as pd
 
 import numpy as np
@@ -66,10 +67,16 @@ class PersonAnalyzer:
         learner = LinearLearner()
         learner.learn(X_train, y_train)
 
+        # Merge PL+NL and PT+NT
+        def group(n):
+            if n in [0, 1]:
+                return 0
+            return 1
+
         #  Get the predicted output for X_test and compare to
         #  the expected output
-        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1)
-        y_test = pd.DataFrame(y_test).idxmax(axis=1)
+        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1).apply(group)
+        y_test = pd.DataFrame(y_test).idxmax(axis=1).apply(group)
 
         #  Count number of failures
         result = np.array(y_test) - np.array(y_test_predict)
@@ -123,6 +130,7 @@ class PersonAnalyzer:
 
         return result
 
-pa = PersonAnalyzer("Videos/roy_amir")
+person = sys.argv[1]
+pa = PersonAnalyzer("Videos/" + person)
 # pa.analyze_data()
 pa.linear_regression()

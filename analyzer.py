@@ -32,9 +32,15 @@ class Analyzer:
             if self.display:
                 cv2.imshow("image", frame)
 
+            frame_index += 1
+
+            # If no face has been detected
+            if detections is None:
+                continue
+
             #  Append to the result array
             result.append(detections[0, :, :].flatten())
 
-            frame_index += 1
+
 
         return result

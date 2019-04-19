@@ -17,6 +17,10 @@ class SixtyEightInterpreter:
     def interpret(self, frame):
         result = self.get_opencv_result(frame)
 
+        # If no face has been detected
+        if result is None:
+            return None
+
         #  Normalize the data and return the norm vector
         anchor_point = result[0, 8, :]
 
@@ -33,6 +37,10 @@ class SixtyEightInterpreter:
 
         result = self.fastest_result_possible(frame, cut_frame)
 
+        # If no face has been detected
+        if result is None:
+            return None
+
         #  Update the frame to by inside 1080 x 1920 px
         frame_master.update_frame_by_cut(cut_frame)
         frame_master.update_result_by_cut(result)
@@ -44,7 +52,7 @@ class SixtyEightInterpreter:
 
     def fastest_result_possible(self, frame, cut_frame):
         result = self.opencv_face_detection(cut_frame)
-        if len(result) == 0:
+        if len(result) == 0 or result is None:
             result = self.opencv_face_detection(frame)
 
         result = np.array(result)

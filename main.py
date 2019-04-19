@@ -1,5 +1,6 @@
 
 import os
+import sys
 import pandas as pd
 
 import numpy as np
@@ -26,14 +27,13 @@ class PersonAnalyzer:
     of raw data
     """
     def analyze_data(self):
-        self.nl = self.analyze_folder("NL")
-        self.pl = self.analyze_folder("PL")
+        #self.nl = self.analyze_folder("NL")
+        #self.nl.to_csv(self.folder + "/nl.csv")
+        #self.pl = self.analyze_folder("PL")
+        #self.pl.to_csv(self.folder + "/pl.csv")
         self.nt = self.analyze_folder("NT")
-        self.pt = self.analyze_folder("PT")
-
-        self.nl.to_csv(self.folder + "/nl.csv")
-        self.pl.to_csv(self.folder + "/pl.csv")
         self.nt.to_csv(self.folder + "/nt.csv")
+        self.pt = self.analyze_folder("PT")
         self.pt.to_csv(self.folder + "/pt.csv")
 
 
@@ -66,10 +66,16 @@ class PersonAnalyzer:
         self.learner = LinearLearner()
         self.learner.learn(X_train, y_train)
 
+        # Merge PL+NL and PT+NT
+        def group(n):
+            if n in [0, 1]:
+                return 0
+            return 1
+
         #  Get the predicted output for X_test and compare to
         #  the expected output
-        y_test_predict = pd.DataFrame(self.learner.predict(X_test)).idxmax(axis=1)
-        y_test = pd.DataFrame(y_test).idxmax(axis=1)
+        y_test_predict = pd.DataFrame(learner.predict(X_test)).idxmax(axis=1).apply(group)
+        y_test = pd.DataFrame(y_test).idxmax(axis=1).apply(group)
 
         #  Count number of failures
         result = np.array(y_test) - np.array(y_test_predict)
@@ -134,7 +140,7 @@ class PersonAnalyzer:
     inside the main folder given in the constructor
     for all the videos in the folder
     """
-    def analyze_folder(self, name):
+    def analyze_folder(self, name, display = False):
         #  Print message
         print("Starting analyze of " + name + ":")
 
@@ -161,11 +167,7 @@ class PersonAnalyzer:
 
         return result
 
-pa = PersonAnalyzer("Videos/kaplan")
-pa.nt = pa.analyze_folder("NT")
-pa.pt = pa.analyze_folder("PT")
-
-pa.nt.to_csv(pa.folder + "/nt.csv")
-pa.pt.to_csv(pa.folder + "/pt.csv")
-# pa.analyze_data()
+person = sys.argv[1]
+pa = PersonAnalyzer("Videos/" + person)
+pa.analyze_data()
 pa.linear_regression()

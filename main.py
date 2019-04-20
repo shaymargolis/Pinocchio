@@ -92,21 +92,32 @@ class PersonAnalyzer:
     Predicts the type of the video based on
     the data and the learner.
     """
-    def predict_type(self, data):
+    def predict_type(self, title, data):
+        #  Create pattern of result
+        result = pd.DataFrame([0, 0, 0, 0], index=["NL", "NT", "PL", "PT"])
+
         #  Get y based on learner
-        y_predict = pd.DataFrame(self.learner.predict(data)).idmax(axis=1)
+        y_predict = pd.DataFrame(self.learner.predict(data)).idxmax(axis=1)
 
         #  Get the most frequent one
         freq = y_predict.value_counts()
 
-        plt.figure(dpi=250)
-        plt.title("Distribution of frames in video")
+        print(freq)
+
+        for i in range(min(len(freq), 4)):
+            result.iloc[freq.index[i], 0] = freq.iloc[i]
+
+        print(result)
+        print(result[0].tolist())
+
+        plt.figure(dpi=150)
+        plt.grid()
+        plt.title("Distribution of frames in video for " + title)
         plt.xlabel("Predicted type")
         plt.ylabel("# Of frames")
-        plt.plot(list(freq.index), freq, kind="bar")
-        plt.show()
+        plt.bar(["NL", "NT", "PL", "PT"], result[0].tolist())
 
-        return freq
+        return
 
     """
     Opens a specific video type and tries to
@@ -179,3 +190,12 @@ class PersonAnalyzer:
 # person = sys.argv[1]
 pa = PersonAnalyzer("Videos/" + "kaplan")
 pa.linear_regression()
+
+root = "Videos/kaplan/PL"
+file_list = os.listdir(root)
+
+for i in range(len(file_list)):
+    result = pa.analyze_video(root, file_list, i)
+    pa.predict_type(file_list[i], result)
+
+    plt.savefig("Figs/" + file_list[i] + "_distr.png")

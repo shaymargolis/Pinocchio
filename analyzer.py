@@ -22,7 +22,7 @@ class Analyzer:
             ret, frame = self.source.next_frame()
 
             #  Only analyze if the frame is not null
-            if ret == False or frame_index >= start_frame or frame is None:
+            if ret == False or frame_index >= start_frame:
                 continue
 
             #  Get the face detections

@@ -8,21 +8,22 @@ class Analyzer:
         self.display = display
         self.pg = pg
 
-    def start(self, start_frame = 0, end_frame = np.inf):
+    def start(self, start_frame = -np.inf, end_frame = np.inf):
         result = list()
 
         frame_index = 0
 
         while (not self.source.is_finished()) and frame_index <= end_frame:
             #  Update ProgressBar
+            frame_index += 1
             if self.pg is not None:
                 self.pg.update()
 
             #  Get the next frame
-            ret, frame = self.source.next_frame()
+            frame = self.source.next_frame()
 
             #  Only analyze if the frame is not null
-            if ret == False or frame_index >= start_frame:
+            if frame_index <= start_frame:
                 continue
 
             #  Get the face detections
@@ -31,8 +32,6 @@ class Analyzer:
             #  Show the result
             if self.display:
                 cv2.imshow("image", frame)
-
-            frame_index += 1
 
             # If no face has been detected
             if detections is None:

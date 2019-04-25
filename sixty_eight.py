@@ -35,15 +35,18 @@ class SixtyEightInterpreter:
         #  Get the cutted frame
         cut_frame = frame_master.get_cut_frame()
 
-        result = self.fastest_result_possible(frame, cut_frame)
+        used_cut, result = self.fastest_result_possible(frame, cut_frame)
 
         # If no face has been detected
         if result is None:
             return None
 
+        #  Only if we used the cut_frame (not fallback to
+        #  the big original frame)
         #  Update the frame to by inside 1080 x 1920 px
-        frame_master.update_frame_by_cut(cut_frame)
-        frame_master.update_result_by_cut(result)
+        if used_cut:
+            frame_master.update_frame_by_cut(cut_frame)
+            frame_master.update_result_by_cut(result)
 
         #  Get the last margins from the frame
         self.last_margins = frame_master.get_new_margins(result[0])
@@ -51,19 +54,24 @@ class SixtyEightInterpreter:
         return result
 
     def fastest_result_possible(self, frame, cut_frame):
+        used_cut = True
         result = self.opencv_face_detection(cut_frame)
-        if len(result) == 0 or result is None:
+        if result is None or len(result) == 0:
+            used_cut = False
             result = self.opencv_face_detection(frame)
 
         result = np.array(result)
 
         if len(result) == 0:
-            return None
+            return used_cut, None
 
-        return result
+        return used_cut, result
 
     def opencv_face_detection(self, frame):
         result = list()
+
+        if frame is None or frame.size == 0:
+            return None
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))

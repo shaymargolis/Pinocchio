@@ -37,8 +37,25 @@ class Analyzer:
             if detections is None:
                 continue
 
+            #  Get additional features
+            #  Left Eye
+            left_a = np.sum(np.power(detections[0, 35] - detections[0, 38], 2))
+            left_b = np.sum(np.power(detections[0, 36] - detections[0, 40], 2))
+            left_b += np.sum(np.power(detections[0, 37] - detections[0, 39], 2))
+            left_c = left_b/(2*left_a)
+
+            #  Right eye
+            right_a = np.sum(np.power(detections[0, 41] - detections[0, 44], 2))
+            right_b = np.sum(np.power(detections[0, 42] - detections[0, 46], 2))
+            right_b += np.sum(np.power(detections[0, 43] - detections[0, 45], 2))
+            right_c = right_b/(2*right_a)
+
+            additional = [np.average([left_c, right_c])]
+
             #  Append to the result array
-            result.append(detections[0, :, :].flatten())
+            final = list(detections[0, :, :].flatten())
+            final += additional
+            result.append(final)
 
 
 

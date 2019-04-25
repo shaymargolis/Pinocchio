@@ -12,6 +12,8 @@ class ImageSource:
 
         self.next = self.__raw_next_frame()
 
+        frame = self.rescale_frame(frame, percent=70)
+
         return frame
 
     def __raw_next_frame(self):

@@ -27,6 +27,11 @@ class SixtyEightInterpreter:
         result[0, :, :] -= anchor_point
         result[0, :, :] *= -1
 
+        result = list(result[0, :, :])
+        result.pop(8)
+        result = [result]
+        result = np.array(result)
+
         return result
 
     def get_opencv_result(self, frame):

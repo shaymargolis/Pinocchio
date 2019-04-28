@@ -77,7 +77,7 @@ class IrisDetector:
         mu = cv2.moments(contour, True)
 
         if mu['m00'] == 0:
-            return None
+            return [None, None]
 
         return (int(mu['m10'] / mu['m00']), int(mu['m01']/mu['m00']))
 
@@ -94,7 +94,7 @@ class IrisDetector:
         for contour in contours:
             center = self.get_mass_center(contour)
 
-            if center is None:
+            if center is None or center == [None, None]:
                 continue
 
             mc.append(center)

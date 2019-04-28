@@ -50,9 +50,12 @@ class Analyzer:
             #  Iris location
             left, left_mc, right, right_mc = iris.get_face_irises(orig, detections[0][35:41], detections[0][41:47])
 
-            left_dist, right_dist, theta = [None, None], [None, None], None
+            left_iris, right_iris, theta = [None, None], [None, None], None
 
             if len(right) > 0 and len(left) > 0:
+                left_iris = left[0]
+                right_iris = right[0]
+
                 cv2.circle(frame, tuple(left[0]), 2, (0, 0, 255), -1)
                 cv2.circle(frame, tuple(right[0]), 2, (0, 0, 255), -1)
 
@@ -79,7 +82,7 @@ class Analyzer:
             right_b += np.sum(np.power(detections[0, 43] - detections[0, 45], 2))
             right_c = right_b/(2*right_a)
 
-            additional = [np.average([left_c, right_c]), left_dist[0], left_dist[1], right_dist[0], right_dist[1], theta]
+            additional = list(left_mc) + list(left_iris) + list(right_mc) + list(right_iris) + [theta] + [np.average([left_c, right_c])]
             # additional = [np.average([left_c, right_c])]
 
             #  Append to the result array

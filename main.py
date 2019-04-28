@@ -195,71 +195,11 @@ class PersonAnalyzer:
 
         return result
 
-<<<<<<< HEAD
-
-person = sys.argv[1]
-state = '/' + sys.argv[2] + '/'
-
-pa = PersonAnalyzer("Videos/" + person)
-#pa.analyze_data()
-=======
 """source = ImageSource("Videos/kaplan/NT/NT-21.mov")
 sixty = SixtyEightInterpreter()
 anal = Analyzer(source, sixty, True)
 result = anal.start()
-res2 = pd.DataFrame(result)"""
-
-"""# person = sys.argv[1]
-pa = PersonAnalyzer("Videos/" + "kaplan")
->>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
-pa.linear_regression()
-#pd.DataFrame(pa.learner.lm.coef_).sort_values(by=0,axis=1).to_csv("coef_new.csv")
-
-
-<<<<<<< HEAD
-root = "Videos/" + person + state
-=======
-root = "Videos/kaplan/PT"
->>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
-file_list = os.listdir(root)
-
-for i in range(len(file_list)):
-    print(file_list[i])
-
-    result = pa.analyze_video(root, file_list, i)
-<<<<<<< HEAD
-    pa.predict_type(file_list[i], result, person, state, i+1)
-
-    plt.savefig("Figs/" + person + state + file_list[i] + "_distr_new.eps")
-=======
-
-    if (len(result) == 0):
-        continue
-
-    pa.predict_type(file_list[i], result)
-
-    plt.savefig("Figs/" + file_list[i] + "_distr.png")
-
-source = ImageSource("Videos/kaplan/NL/kaplan_lies_no_1.mp4")
-sixty = SixtyEightInterpreter()
-anal = Analyzer(source, sixty, True)
-result = anal.start()
-res1 = pd.DataFrame(result)
-
-res1.to_csv("res1.csv")
-
-source = ImageSource("Videos/kaplan/NT/NT-21.mov")
-sixty = SixtyEightInterpreter()
-anal = Analyzer(source, sixty, True)
-result = anal.start()
 res2 = pd.DataFrame(result)
-
-res2.to_csv("res2.csv")
-
-plt.figure()
-plt.plot(res1[136], "r-")
-plt.plot(res2[136], "b-")
-plt.show()
 """
 
 from scipy.signal import find_peaks

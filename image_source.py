@@ -30,7 +30,10 @@ class ImageSource:
         return self.is_finished_bool
 
     def get_length(self):
-        return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))-1
+
+    def get_fps(self):
+        return self.video_capture.get(cv2.CAP_PROP_FPS)
 
     def rescale_frame(self, frame, percent=75):
         width = int(frame.shape[1] * percent/ 100)

@@ -13,6 +13,8 @@ from image_source import ImageSource
 from sixty_eight import SixtyEightInterpreter
 from linear_learner import LinearLearner
 
+from scipy import signal
+
 from sklearn.model_selection import train_test_split
 
 class PersonAnalyzer:
@@ -170,7 +172,7 @@ class PersonAnalyzer:
         #  Print message
         print("Starting analyze of " + name + ":")
 
-        #  Create result DataFrame
+        #  Create result DatafgFrame
         result = pd.DataFrame()
 
         #  Make root folder path
@@ -193,21 +195,168 @@ class PersonAnalyzer:
 
         return result
 
+<<<<<<< HEAD
 
 person = sys.argv[1]
 state = '/' + sys.argv[2] + '/'
 
 pa = PersonAnalyzer("Videos/" + person)
 #pa.analyze_data()
+=======
+"""source = ImageSource("Videos/kaplan/NT/NT-21.mov")
+sixty = SixtyEightInterpreter()
+anal = Analyzer(source, sixty, True)
+result = anal.start()
+res2 = pd.DataFrame(result)"""
+
+"""# person = sys.argv[1]
+pa = PersonAnalyzer("Videos/" + "kaplan")
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
 pa.linear_regression()
 #pd.DataFrame(pa.learner.lm.coef_).sort_values(by=0,axis=1).to_csv("coef_new.csv")
 
 
+<<<<<<< HEAD
 root = "Videos/" + person + state
+=======
+root = "Videos/kaplan/PT"
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
 file_list = os.listdir(root)
 
 for i in range(len(file_list)):
+    print(file_list[i])
+
     result = pa.analyze_video(root, file_list, i)
+<<<<<<< HEAD
     pa.predict_type(file_list[i], result, person, state, i+1)
 
     plt.savefig("Figs/" + person + state + file_list[i] + "_distr_new.eps")
+=======
+
+    if (len(result) == 0):
+        continue
+
+    pa.predict_type(file_list[i], result)
+
+    plt.savefig("Figs/" + file_list[i] + "_distr.png")
+
+source = ImageSource("Videos/kaplan/NL/kaplan_lies_no_1.mp4")
+sixty = SixtyEightInterpreter()
+anal = Analyzer(source, sixty, True)
+result = anal.start()
+res1 = pd.DataFrame(result)
+
+res1.to_csv("res1.csv")
+
+source = ImageSource("Videos/kaplan/NT/NT-21.mov")
+sixty = SixtyEightInterpreter()
+anal = Analyzer(source, sixty, True)
+result = anal.start()
+res2 = pd.DataFrame(result)
+
+res2.to_csv("res2.csv")
+
+plt.figure()
+plt.plot(res1[136], "r-")
+plt.plot(res2[136], "b-")
+plt.show()
+"""
+
+from scipy.signal import find_peaks
+
+
+def closest_to_down(data, abs_min, step):
+    i = abs_min
+    while i > 0 and i < len(data)-1 and data[i] < 0.05:
+        i += step
+
+    return i
+
+def analyze_blink(data):
+    try:
+        data = np.array(data)
+        peaks, _ = find_peaks(data)
+
+        abs_min = np.array(data).argmin()
+
+        closest_left = closest_to_down(data, abs_min, -1)
+        closest_right = closest_to_down(data, abs_min, 1)
+
+        blink_start = (data[closest_left] - data[abs_min]) / (abs_min - closest_left)
+        blink_end = (data[closest_right] - data[abs_min]) / (closest_right - closest_left)
+
+        filt = signal.savgol_filter(data, 7, 4)
+
+        a = np.linspace(-0.02, -0.02, len(data))
+
+        plt.figure()
+        plt.title("INTERPRETATION OF BLINK")
+        plt.plot(data, "r.")
+        plt.plot(data, "r-", label="raw data")
+        plt.plot(filt, "b-", label="smooth data")
+        plt.plot(a, "y-", label="threshold")
+        plt.plot(np.gradient(data), "g-", label="gradient on raw data")
+        plt.plot(np.gradient(filt), "y-", label="gradient on smoothed data")
+        plt.plot(closest_left, [data[closest_left]], "b.")
+        plt.plot(closest_right, [data[closest_right]], "y.")
+        plt.legend()
+        plt.show()
+
+        filtgrad = np.gradient(filt)
+        peaks = filtgrad[ np.where( filtgrad < -0.02 ) ]
+
+        return len(peaks)
+
+    except Exception as e:
+        print(e)
+        plt.figure()
+        plt.title("BAD INTERPRETATION OF BLINK")
+        plt.plot(data, "r-")
+        plt.show()
+        return -1, -1
+
+def analyze_folder(title, root, analyze=True):
+    file_list = os.listdir(root)
+
+    truth = []
+
+    for i in range(len(file_list)):
+        if analyze:
+            print(file_list[i])
+            source = ImageSource(root + "/" + file_list[i])
+            pg = tqdm(total=source.get_length())
+            sixty = SixtyEightInterpreter()
+            anal = Analyzer(source, sixty, False, pg)
+            result = anal.start()
+            pg.close()
+            res2 = pd.DataFrame(result)
+
+            res2.to_csv("Data/" + root + "/" + file_list[i] + ".csv")
+        res2 = pd.read_csv("Data/" + root + "/" + file_list[i] + ".csv")
+
+        blink = res2.loc[:, '134']
+
+        blink_num = analyze_blink(blink)
+        truth.append(blink_num)
+
+        print("["+file_list[i]+"] Blink num ", blink_num)
+
+    truth = np.array(list(filter(lambda x:x!=(-1,-1), truth)))
+
+    print("["+title+"] Average blink num", np.average(truth), np.std(truth))
+
+    return truth
+
+show = False
+name = 'kaplan'
+
+#NL = analyze_folder("NL", "Videos/"+name+"/NL", show)
+#PL = analyze_folder("PL", "Videos/"+name+"/PL", show)
+#PT_blink = analyze_folder("PT-blink", "Videos/"+name+"/PT-blink", show)
+#NT = analyze_folder("NT", "Videos/"+name+"/NT", show)
+analyze_folder("kaplan", "Videos/inter/kaplan", False)
+"""NT = analyze_folder("REAL-NT", "Videos/"+name+"/Real-NT", show)
+NT = analyze_folder("REAL-PT", "Videos/"+name+"/Real-PT", show)
+NT = analyze_folder("REAL-PL", "Videos/"+name+"/Real-PL", show)
+NT = analyze_folder("REAL-NL", "Videos/"+name+"/Real-NL", show)"""
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c

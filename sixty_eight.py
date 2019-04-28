@@ -21,6 +21,8 @@ class SixtyEightInterpreter:
         if result is None:
             return None
 
+        result = np.array(result)
+        
         return result
 
     def get_opencv_result(self, frame):

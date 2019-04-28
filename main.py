@@ -65,11 +65,15 @@ class PersonAnalyzer:
 
         #  Create train & test data
         X_train, X_test, y_train, y_test = train_test_split(np.array(full), np.array(y_data))
+        X_train, y_train = full, y_data
 
         #  Learn the data and check for success
         self.learner = LinearLearner()
         self.learner.learn(X_train, y_train)
 
+        print("Learning Done.")
+
+        """
         # Merge PL+NL and PT+NT
         def group(n):
             if n in [0, 1]:
@@ -89,12 +93,13 @@ class PersonAnalyzer:
 
         #  Print the success rate
         print("Total success rate: %.2f%%" % (curr/total * 100))
+        """
 
     """
     Predicts the type of the video based on
     the data and the learner.
     """
-    def predict_type(self, title, data):
+    def predict_type(self, title, data, person = "", state = "", index = 0):
         #  Create pattern of result
         result = pd.DataFrame([0, 0, 0, 0], index=["NL", "NT", "PL", "PT"])
 
@@ -112,12 +117,13 @@ class PersonAnalyzer:
         print(result)
         print(result[0].tolist())
 
+        colors = {'/PL/': 'r', '/NL/': 'b', '/PT/': 'g', '/NT/': 'darkorange', '/Test/': 'mediumslateblue', '/Real_Test/':'mediumslateblue'}
         plt.figure(dpi=150)
         plt.grid()
-        plt.title("Distribution of frames in video for " + title)
+        plt.title("Distribution of Frame Predictions\nin video #"+str(index)+" of "+person+", " + state[1:3])
         plt.xlabel("Predicted type")
         plt.ylabel("# Of frames")
-        plt.bar(["NL", "NT", "PL", "PT"], result[0].tolist())
+        plt.bar(["NL", "NT", "PL", "PT"], result[0].tolist(), color = colors[state])
 
         return
 
@@ -189,6 +195,14 @@ class PersonAnalyzer:
 
         return result
 
+<<<<<<< HEAD
+
+person = sys.argv[1]
+state = '/' + sys.argv[2] + '/'
+
+pa = PersonAnalyzer("Videos/" + person)
+#pa.analyze_data()
+=======
 """source = ImageSource("Videos/kaplan/NT/NT-21.mov")
 sixty = SixtyEightInterpreter()
 anal = Analyzer(source, sixty, True)
@@ -197,15 +211,27 @@ res2 = pd.DataFrame(result)"""
 
 """# person = sys.argv[1]
 pa = PersonAnalyzer("Videos/" + "kaplan")
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
 pa.linear_regression()
+#pd.DataFrame(pa.learner.lm.coef_).sort_values(by=0,axis=1).to_csv("coef_new.csv")
 
+
+<<<<<<< HEAD
+root = "Videos/" + person + state
+=======
 root = "Videos/kaplan/PT"
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c
 file_list = os.listdir(root)
 
 for i in range(len(file_list)):
     print(file_list[i])
 
     result = pa.analyze_video(root, file_list, i)
+<<<<<<< HEAD
+    pa.predict_type(file_list[i], result, person, state, i+1)
+
+    plt.savefig("Figs/" + person + state + file_list[i] + "_distr_new.eps")
+=======
 
     if (len(result) == 0):
         continue
@@ -333,3 +359,4 @@ analyze_folder("kaplan", "Videos/inter/kaplan", False)
 NT = analyze_folder("REAL-PT", "Videos/"+name+"/Real-PT", show)
 NT = analyze_folder("REAL-PL", "Videos/"+name+"/Real-PL", show)
 NT = analyze_folder("REAL-NL", "Videos/"+name+"/Real-NL", show)"""
+>>>>>>> 6d91a2cf197d5e8ab4c7d4c1507df4f8ceec0e0c

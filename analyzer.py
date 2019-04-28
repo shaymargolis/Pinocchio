@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import math
+from iris_detector import IrisDetector
 
 class Analyzer:
     def __init__(self, source, interpreter, display, pg=None):
@@ -12,6 +14,7 @@ class Analyzer:
         result = list()
 
         frame_index = 0
+        iris = IrisDetector()
 
         while (not self.source.is_finished()) and frame_index <= end_frame:
             #  Update ProgressBar
@@ -21,6 +24,12 @@ class Analyzer:
 
             #  Get the next frame
             frame = self.source.next_frame()
+
+            #  ONLY fOR NOW
+            if frame is not None:
+                # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
+                orig = frame.copy()
 
             #  Only analyze if the frame is not null
             if frame_index <= start_frame:
@@ -38,6 +47,26 @@ class Analyzer:
                 continue
 
             #  Get additional features
+            #  Iris location
+            left, left_mc, right, right_mc = iris.get_face_irises(orig, detections[0][35:41], detections[0][41:47])
+
+            left_dist, right_dist, theta = [None, None], [None, None], None
+
+            if len(right) > 0 and len(left) > 0:
+                cv2.circle(frame, tuple(left[0]), 2, (0, 0, 255), -1)
+                cv2.circle(frame, tuple(right[0]), 2, (0, 0, 255), -1)
+
+                left_dist = np.subtract(left[0], left_mc)
+                right_dist = np.subtract(right[0], right_mc)
+
+                dist = np.mean([left_dist, right_dist], axis=1)
+
+                theta = math.atan(dist[1] / dist[0])
+
+            #  Show the result
+            if self.display:
+                cv2.imshow("image", frame)
+
             #  Left Eye
             left_a = np.sum(np.power(detections[0, 35] - detections[0, 38], 2))
             left_b = np.sum(np.power(detections[0, 36] - detections[0, 40], 2))
@@ -50,7 +79,8 @@ class Analyzer:
             right_b += np.sum(np.power(detections[0, 43] - detections[0, 45], 2))
             right_c = right_b/(2*right_a)
 
-            additional = [np.average([left_c, right_c])]
+            additional = [np.average([left_c, right_c]), left_dist[0], left_dist[1], right_dist[0], right_dist[1], theta]
+            # additional = [np.average([left_c, right_c])]
 
             #  Append to the result array
             final = list(detections[0, :, :].flatten())

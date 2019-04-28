@@ -21,12 +21,6 @@ class SixtyEightInterpreter:
         if result is None:
             return None
 
-        #  Normalize the data and return the norm vector
-        anchor_point = result[0, 8, :]
-
-        result[0, :, :] -= anchor_point
-        result[0, :, :] *= -1
-
         return result
 
     def get_opencv_result(self, frame):
@@ -57,15 +51,14 @@ class SixtyEightInterpreter:
         used_cut = True
         result = self.opencv_face_detection(cut_frame)
         if result is None or len(result) == 0:
+            # frame = self.rescale_frame(frame, 40)
             used_cut = False
             result = self.opencv_face_detection(frame)
 
-        result = np.array(result)
-
-        if len(result) == 0:
+        if result is None or len(result) == 0:
             return used_cut, None
 
-        return used_cut, result
+        return used_cut, np.array(result)
 
     def opencv_face_detection(self, frame):
         result = list()
@@ -83,6 +76,8 @@ class SixtyEightInterpreter:
             shape = self.predictor(clahe_image, d) #Get coordinates
             for i in range(1,68): #There are 68 landmark points on each face
                 cv2.circle(frame, (shape.part(i).x, shape.part(i).y), 1, (0,0,255), thickness=2) #For each point, draw a red circle with thickness2 on the original frame
+                #font = cv2.FONT_HERSHEY_SIMPLEX
+                #cv2.putText(frame,str(i-1),(shape.part(i).x, shape.part(i).y), font, 0.4,(255,255,255),2,cv2.LINE_AA)
 
                 detected_face.append(np.array([shape.part(i).x, shape.part(i).y]))
 

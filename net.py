@@ -10,22 +10,19 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from keras.utils import np_utils
 
 class NetLearner:
     def __init__(self, title, length):
         self.title = title
 
         self.model = keras.Sequential([
-            keras.layers.Dense(length, activation='relu'),
-            keras.layers.Dropout(0.3, noise_shape=None, seed=None),
-            keras.layers.Dense(length, activation='relu'),
-            keras.layers.Dropout(0.3, noise_shape=None, seed=None),
-            keras.layers.Dense(1, activation='sigmoid')
+            keras.layers.Dense(length, input_dim=length, activation='relu'),
+            keras.layers.Dense(2, activation='softmax')
         ])
 
-        self.model.compile(optimizer='adam',
-                      loss='binary_crossentropy',
-                      metrics=['accuracy'])
+        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     def learn(self, X_train, Y_train):
         self.model.fit(X_train, Y_train, epochs=5)
@@ -39,36 +36,34 @@ class NetLearner:
         print('Test accuracy:', test_acc)
 
 if __name__ == "__main__":
-    learner = NetLearner("test1", 145)
+    learner = NetLearner("test1", 137)
 
     truth = pd.read_csv("truth.csv")
     false = pd.read_csv("false.csv")
 
-    truth = np.array(truth)
-    false = np.array(false)
+    print(len(truth))
 
-    odd = range(1, 144, 2)
-    even = range(0, 144, 2)
+    truth["Type"] = "T"
+    false["Type"] = "F"
 
-    for i in range(len(truth)):
-        truth[i, even] -= truth[i, 16]
-        truth[i, odd] -= truth[i, 17]
+    truth = truth.append(false)
 
-    for i in range(len(false)):
-        false[i, even] -= false[i, 16]
-        false[i, odd] -= false[i, 17]
 
-    print(truth[:, [16, 17]])
+    # encode class values as integers
+    encoder = LabelEncoder()
+    encoder.fit(truth["Type"])
+    encoded_Y = encoder.transform(truth["Type"])
+    # convert integers to dummy variables (i.e. one hot encoded)
+    dummy_y = np_utils.to_categorical(encoded_Y)
 
-    truth_y = np.ones(len(truth[:, 0]))
-    false_y = np.zeros(len(false[:, 0]))
+    print(dummy_y)
 
-    data = np.concatenate((truth, false))
-    y = np.concatenate((truth_y, false_y))
+    truth = truth.drop(["Unnamed: 0", "Type", '136', '137', '138', '139', '140', '141', '142'], axis=1)
 
-    print(y)
+    print(truth)
+    print(len(truth.columns))
 
-    X_train, X_test, Y_train, Y_test = train_test_split(data, y)
+    X_train, X_test, Y_train, Y_test = train_test_split(np.array(truth), dummy_y)
 
     learner.learn(X_train, Y_train)
 

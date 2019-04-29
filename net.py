@@ -17,15 +17,19 @@ class NetLearner:
     def __init__(self, title, length):
         self.title = title
 
+        #model.add(Dense(units=20, activation='relu', kernel_regularizer='l2', input_dim=x.shape[1]))
+        # model.add(Dense(units=10, activation='relu', kernel_regularizer='l2'))
+
         self.model = keras.Sequential([
-            keras.layers.Dense(length, input_dim=length, activation='relu'),
+            keras.layers.Dense(20, input_dim=length, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, input_dim=length, activation='relu', kernel_regularizer='l2'),
             keras.layers.Dense(2, activation='softmax')
         ])
 
         self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     def learn(self, X_train, Y_train):
-        self.model.fit(X_train, Y_train, epochs=5)
+        self.model.fit(X_train, Y_train, epochs=100)
         self.model.save("Model/" + self.title + ".h5")
 
     def predict(self, X_test):

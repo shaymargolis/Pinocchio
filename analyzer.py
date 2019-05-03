@@ -90,6 +90,4 @@ class Analyzer:
             final += additional
             result.append(final)
 
-
-
         return result

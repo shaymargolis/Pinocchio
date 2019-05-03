@@ -87,7 +87,7 @@ class IrisDetector:
     """
     def get_image_contours(self, frame):
         #  Get contours
-        im2, contours, hierarchy = cv2.findContours(frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         #  Get the moments
         mc = []

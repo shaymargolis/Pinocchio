@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import numpy.linalg as LA
+import os
 
 def features_avg(features):
     ind = features.columns.values.copy()
@@ -20,16 +22,23 @@ def features_std(features):
     return stds
 
 def features_euclidean_dists(features):
-    s = len(features.columns.values)
+    result = pd.DataFrame()
 
+    ind = list(range(1,8))
+    ind += list(range(9, 68))
+
+    print("AAAA")
     print(features)
 
-    for i in range(0, s, 2):
-        for j in range(i+1, s, 2):
-            if i+1 >= s or j+1 >= s:
-                continue
-            x0, y0, x1, y1 = features[str(i)], features[str(i+1)], features[str(j)], features[str(j+1)]
-            features[str(i)+"DIST FROM"+str(j)] = LA.norm([x0-x1, y0-y1])
-            print(100*(i*s+j)/(s**2))
+    for i in range(0, len(ind)):
+        for j in range(i+1, len(ind)):
+            k = ind[i]
+            p = ind[j]
 
-    return features
+            x0, y0, x1, y1 = features[str(k)+"x"], features[str(k)+"y"], features[str(p)+"x"], features[str(p)+"y"]
+
+            result[str(i+1)+"DIST FROM"+str(j+1)] = (x0-x1)**2+(y0-y1)**2
+            os.system("cls")
+            print(100*(i*len(ind)+j)/(len(ind)**2))
+
+    return result

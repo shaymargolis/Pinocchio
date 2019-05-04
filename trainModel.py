@@ -13,8 +13,8 @@ def get_data(people):
 
     for person in people:
         #  Read X_values
-        true_data = pd.read_csv("Videos/New/" + person + "/Data/True/All.csv")
-        false_data = pd.read_csv("Videos/New/" + person + "/Data/False/All.csv")
+        true_data = pd.read_csv(person + "/Data/True/All.csv")
+        false_data = pd.read_csv(person + "/Data/False/All.csv")
 
         #  Append Y values
         true_data["Truth"] = 1
@@ -34,7 +34,7 @@ def get_data(people):
     ind = [str(i+1) + x for i in range(1) for x in ['x','y']]
     ind += [str(i+1) + x for i in range(8, 68) for x in ['x','y']]
     # X = features_euclidean_dists(result).append([result.drop(["Truth"])], axis = 1)
-    X = features_euclidean_dists(result)
+    X = result.drop(["Truth"], axis = 1)
 
     return X, Y
 

@@ -27,7 +27,9 @@ def get_features(people, basic_override = False):
                 try:
                     path = {"Video": person + "/Video/" + state + "/" + file, "Data": person + "/Data/" + state + "/" + file[:-4] + ".csv"}
 
-                    print("\n\n~~~FINDING FEATURES FOR "+person+" ||| STATE: "+state+" ||| FILE: "+file+"~~~\n")
+                    os.system('clear')
+
+                    print("\n\n~~~ PERSON: "+person+" ||| STATE: "+state+" ||| FILE: "+file+" ~~~\n")
 
                     sixtyeight_dots = get_sixtyeight_feature(path["Video"])
                     sixtyeight_dots.to_csv(path["Data"])
@@ -53,7 +55,6 @@ def get_features(people, basic_override = False):
 
                     result = pd.concat([sixtyeight_dots, dt, dist_from_avg, avgs, stds], axis = 1)
                     result.to_csv(person + "/Data/" + state + "/" + file[:-4] + ".csv")
-                    os.system('clear')
 
                 except Exception:
                     print("FILE FAILED: "+file+"\n")
@@ -66,7 +67,10 @@ def eraseNan(features):
 
         start = 0
         while np.isnan(lst[start]):
+            if start < len(lst):
                 start += 1
+            else:
+                return features
 
         for i in range(start):
             lst[i] = lst[start]
@@ -87,7 +91,7 @@ def concatenateData(people):
     for person in people:
         for state in ["True", "False"]:
 
-            files = os.list_dir(person + "/Data/" + state)
+            files = os.listdir(person + "/Data/" + state)
             dataframes = []
 
             for file in files:

@@ -36,7 +36,7 @@ class Analyzer:
                 continue
 
             #  Get the face detections
-            detections = self.interpreter.interpret(frame)
+            detections, normalized = self.interpreter.interpret(frame)
 
             #  Show the result
             if self.display:
@@ -50,7 +50,7 @@ class Analyzer:
             #  Iris location
             left, left_mc, right, right_mc = iris.get_face_irises(orig, detections[0][35:41], detections[0][41:47])
 
-            left_iris, right_iris, theta = [None, None], [None, None], None
+            left_iris, right_iris, theta = [np.nan, np.nan], [np.nan, np.nan], np.nan
 
             if len(right) > 0 and len(left) > 0:
                 left_iris = left[0]
@@ -64,7 +64,10 @@ class Analyzer:
 
                 dist = np.mean([left_dist, right_dist], axis=1)
 
-                theta = math.atan(dist[1] / dist[0])
+                try:
+                    theta = math.atan(dist[1] / dist[0])
+                except:
+                    pass
 
             #  Show the result
             if self.display:
@@ -86,7 +89,7 @@ class Analyzer:
             # additional = [np.average([left_c, right_c])]
 
             #  Append to the result array
-            final = list(detections[0, :, :].flatten())
+            final = list(normalized[0, :, :].flatten())
             final += additional
             result.append(final)
 

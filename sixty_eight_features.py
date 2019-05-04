@@ -21,9 +21,23 @@ class SixtyEightInterpreter:
         if result is None:
             return None
 
-        result = np.array(result)
+        result = np.array(result, dtype = np.float64)
+        result = np.delete(result, (8), axis = 1)
+        normalized = result.copy()
 
-        return result
+        anchor_point = normalized[0, 8, :]
+
+        normalized[0, :, :] -= anchor_point
+        normalized[0, :, :] *= -1
+
+        x_factor = np.max(np.abs(normalized[0, :, 0])) - np.min(np.abs(normalized[0, :, 0]))
+
+        y_factor = np.max(np.abs(normalized[0, :, 1])) - np.min(np.abs(normalized[0, :, 1]))
+
+        normalized[0, :, 0] /= x_factor
+        normalized[0, :, 1] /= y_factor
+
+        return np.array(result, dtype = np.int64), normalized
 
     def get_opencv_result(self, frame):
         frame_master = CuttedFrame(frame, self.last_margins, PIXEL_ADDITION_TO_FACE_X, PIXEL_ADDITION_TO_FACE_Y)
@@ -76,7 +90,7 @@ class SixtyEightInterpreter:
             detected_face = list()
 
             shape = self.predictor(clahe_image, d) #Get coordinates
-            for i in range(1,68): #There are 68 landmark points on each face
+            for i in range(68): #There are 68 landmark points on each face
                 cv2.circle(frame, (shape.part(i).x, shape.part(i).y), 1, (0,0,255), thickness=2) #For each point, draw a red circle with thickness2 on the original frame
                 #font = cv2.FONT_HERSHEY_SIMPLEX
                 #cv2.putText(frame,str(i-1),(shape.part(i).x, shape.part(i).y), font, 0.4,(255,255,255),2,cv2.LINE_AA)

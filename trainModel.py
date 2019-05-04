@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 from linear_learner import LinearLearner
 from logistic_learner import LogisticLearner
 from net import NetLearner
 from sklearn.model_selection import train_test_split
 from addFeatures import features_euclidean_dists
+from sklearn.metrics import accuracy_score
+from sklearn.externals import joblib
 
 def get_data(people):
     result = pd.DataFrame()
@@ -30,6 +33,7 @@ def get_data(people):
 
     ind = [str(i+1) + x for i in range(1) for x in ['x','y']]
     ind += [str(i+1) + x for i in range(8, 68) for x in ['x','y']]
+    # X = features_euclidean_dists(result).append([result.drop(["Truth"])], axis = 1)
     X = features_euclidean_dists(result)
 
     return X, Y
@@ -71,6 +75,16 @@ def personalizedMethod(train_people, test_people, model_name):
 
     print(Y_test_show)
 
-    print(model.model.get_weights())
+    # print(model.model.get_weights())
+
+    print(accuracy_score(Y_predicted, Y_test))
+
+    joblib.dump(model.lm, 'saved_model.pkl')
+
+    feature_importances = pd.DataFrame(np.abs(model.lm.coef_),
+                                   index = X_train.columns,
+                                   columns=['importance']).sort_values('importance', ascending=False)
+
+    print(feature_importances)
 
     model.print_accuracy(X_test, Y_test)

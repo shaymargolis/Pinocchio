@@ -27,14 +27,21 @@ def get_features(people, basic_override = False):
                 try:
                     path = {"Video": person + "/Video/" + state + "/" + file, "Data": person + "/Data/" + state + "/" + file[:-4] + ".csv"}
 
-                    os.system('clear')
+                    # os.system('clear')
 
                     print("\n\n~~~ PERSON: "+person+" ||| STATE: "+state+" ||| FILE: "+file+" ~~~\n")
 
-                    sixtyeight_dots = get_sixtyeight_feature(path["Video"])
-                    sixtyeight_dots.to_csv(path["Data"])
+                    if basic_override:
+                        sixtyeight_dots = get_sixtyeight_feature(path["Video"])
+                        sixtyeight_dots.to_csv(path["Data"])
+                        sixtyeight_dots = eraseNan(sixtyeight_dots)
 
-                    sixtyeight_dots = eraseNan(sixtyeight_dots)
+                    else:
+                        sixtyeight_dots = pd.read_csv(path["Data"])
+
+                    sixtyeight_dots = features_euclidean_dists(sixtyeight_dots)
+
+                    print("Done Euclading. Number of columns:", sixtyeight_dots.columns.values.shape)
 
                     ind = sixtyeight_dots.columns.values.copy()
                     for i in range(len(ind)):
@@ -54,7 +61,7 @@ def get_features(people, basic_override = False):
                     #euclidean_dists = features_euclidean_dists(sixtyeight_dots)
 
                     result = pd.concat([sixtyeight_dots, dt, dist_from_avg, avgs, stds], axis = 1)
-                    result.to_csv(person + "/Data/" + state + "/" + file[:-4] + ".csv")
+                    result.to_csv(person + "/Data/" + state + "/" + file[:-4] + "_euc.csv")
 
                 except Exception:
                     print("FILE FAILED: "+file+"\n")
@@ -84,21 +91,23 @@ def eraseNan(features):
     return features
 
 
-def concatenateData(people):
+def concatenateData(people, suffix = ""):
     """
     This function concatenates all data in a persons data folder to one main dataframe csv file.
     """
     for person in people:
         for state in ["True", "False"]:
 
+            print("~~~ PERSON: "+person+" ||| STATE: "+state+" ~~~")
+
             files = os.listdir(person + "/Data/" + state)
             dataframes = []
 
             for file in files:
-                if not file[-4:] == ".csv":
+                if not file[(-4-len(suffix)):] == suffix+".csv":
                     continue
                 dataframes.append(pd.read_csv(person + "/Data/" + state + "/" + file))
 
-            result = pd.DataFrame.append(dataframes)
-            result.to_csv(person + "/Data/" + state + "/All.csv")
-            return result
+            result = pd.concat(dataframes, axis = 0, sort = True)
+            result.to_csv(person + "/Data/" + state + "/All"+suffix+".csv")
+            #return result

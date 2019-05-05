@@ -41,6 +41,8 @@ class IrisDetector:
 
         gray, origin = self.get_eye_frame(frame, eye_borders)
 
+        # cv2.imshow("gray", gray)
+
         if gray.size == 0:
             return []
 

@@ -49,7 +49,7 @@ def get_model(model_name):
     print("Model name ", model_name, "Not found.")
     exit(1)
 
-def personalizedMethod(train_people, test_people, model_name):
+def trainPersonalizedMethod(train_people, test_people, model_name, label = ""):
     X_train, Y_train = get_data(train_people)
     X_test, Y_test = get_data(test_people)
 
@@ -61,6 +61,7 @@ def personalizedMethod(train_people, test_people, model_name):
     print("Train is null", X_train.isnull().values.any())
 
     model = get_model(model_name)
+
 
     model.learn(X_train, Y_train)
 
@@ -79,12 +80,16 @@ def personalizedMethod(train_people, test_people, model_name):
 
     print(accuracy_score(Y_predicted, Y_test))
 
-    joblib.dump(model.lm, 'saved_model.pkl')
+    joblib.dump(model.lm, label+".pkl")
 
-    feature_importances = pd.DataFrame(np.abs(model.lm.coef_),
-                                   index = X_train.columns,
-                                   columns=['importance']).sort_values('importance', ascending=False)
 
-    print(feature_importances)
+def testPersonalizedMethod(label, test_people):
+    X_test, Y_test = get_data(test_people)
+    model = joblib.load(label+".pkl")
+    feature_importances = pd.DataFrame(model.lm.coef_[0],
+                                       index = X_train.columns,
+                                       columns=['importance']).sort_values('importance', ascending=False)
 
+    print("~~~ FEATURE IMPORTANCE: " + str(feature_importances))
     model.print_accuracy(X_test, Y_test)
+    print(accuracy_score(Y_predicted, Y_test))

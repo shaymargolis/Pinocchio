@@ -51,4 +51,5 @@ def features_euclidean_dists(features):
             result[k+" DIST FROM "+p] = (x0-x1)**2+(y0-y1)**2
             pg.update()
 
+    pg.close()
     return result

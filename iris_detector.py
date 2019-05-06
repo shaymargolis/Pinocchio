@@ -12,8 +12,8 @@ class IrisDetector:
     def get_face_irises(self, frame, left_eye, right_eye):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        left_candidates = self.eye_iris_frst(frame, left_eye)
         right_candidates = self.eye_iris_frst(frame, right_eye)
+        left_candidates = self.eye_iris_frst(frame, left_eye)
 
         return left_candidates, self.get_mass_center(left_eye), right_candidates, self.get_mass_center(right_eye)
 
@@ -47,15 +47,15 @@ class IrisDetector:
             return []
 
         #  Make frst with the frame
-        frst_image = frst.frst(gray, iris_radius, 2, 0.5, 1, "DARK")
+        frst_result = frst.frst(gray, iris_radius, 2, 0, 1, "DARK")
 
         #  Normalize the reuslt
-        frst_image = frst_image - np.min(frst_image)
-        frst_image = frst_image / np.max(frst_image)
-        frst_image = np.uint8(frst_image*255)
+        frst_result = frst_result - np.min(frst_result)
+        frst_result = frst_result / np.max(frst_result)
+        frst_result = np.uint8(frst_result*255)
 
         #  Get only important dots
-        ret, frst_image = cv2.threshold(frst_image, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+        ret, frst_image = cv2.threshold(frst_result, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
 
         mc = self.get_image_contours(frst_image)
 
@@ -63,7 +63,27 @@ class IrisDetector:
         mc = map(lambda x: np.add(x, origin), mc)
 
         #  Filter only thoes that inside the eye
-        return self.filter_inside_eye(mc, eye_borders)
+        mc = self.filter_inside_eye(mc, eye_borders)
+
+        #  Get the best candidate
+        if len(mc) == 0:
+            return []
+
+        best_candidate = mc[0]
+        for cand in mc:
+            point = np.subtract(cand, origin)
+            if point[0] > frst_result.shape[0] or point[1] > frst_result.shape[1]:
+                continue
+            x0,x1 = point[0]-iris_radius, point[0]+iris_radius
+            y0,y1 = point[1]-iris_radius, point[1]+iris_radius
+
+            a0,a1 = best_candidate[0]-iris_radius, best_candidate[0]+iris_radius
+            b0,b1 = best_candidate[1]-iris_radius, best_candidate[1]+iris_radius
+
+            if np.mean(frst_result[y0:y1, x0:x1]) < np.mean(frst_result[b0:b1, a0:a1]) or np.isnan(np.mean(frst_result[b0:b1, a0:a1])):
+                best_candidate = point
+
+        return [np.add(best_candidate, origin)]
 
     """
     Filters list of points to have only points that

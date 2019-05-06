@@ -28,7 +28,7 @@ class Analyzer:
 
             #  ONLY fOR NOW
             if frame is not None:
-                # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                 pass
 
             #  Only analyze if the frame is not null
@@ -36,15 +36,17 @@ class Analyzer:
                 continue
 
             #  Get the face detections
-            detections, normalized = self.interpreter.interpret(frame)
+            res = self.interpreter.interpret(frame)
 
             #  Show the result
             if self.display:
                 cv2.imshow("image", frame)
 
             # If no face has been detected
-            if detections is None:
+            if res is None:
                 continue
+
+            detections, normalized = res
 
             #  Show the result
             if self.display:

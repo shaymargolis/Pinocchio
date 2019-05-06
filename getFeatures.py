@@ -8,11 +8,13 @@ from addFeatures import features_avg
 from addFeatures import features_euclidean_dists
 from addFeatures import features_std
 
-def get_features(people, basic_override = False):
+def get_features(people, basic_override = False, euclid = False):
     """
     This function creates dataframes (vectors) as csv files in the Data folders
     for each of the people in the given list (for every video in their folder).
     """
+
+    suffix = ""
 
     for person in people:
         for state in ["True", "False"]:
@@ -39,7 +41,9 @@ def get_features(people, basic_override = False):
                     else:
                         sixtyeight_dots = pd.read_csv(path["Data"])
 
-                    sixtyeight_dots = features_euclidean_dists(sixtyeight_dots)
+                    if euclid:
+                        sixtyeight_dots = features_euclidean_dists(sixtyeight_dots)
+                        suffix = "_euc"
 
                     print("Done Euclading. Number of columns:", sixtyeight_dots.columns.values.shape)
 
@@ -60,8 +64,10 @@ def get_features(people, basic_override = False):
 
                     #euclidean_dists = features_euclidean_dists(sixtyeight_dots)
 
+                    print("Done differentiating and shit, suffix =", suffix)
+
                     result = pd.concat([sixtyeight_dots, dt, dist_from_avg, avgs, stds], axis = 1)
-                    result.to_csv(person + "/Data/" + state + "/" + file[:-4] + "_euc.csv")
+                    result.to_csv(person + "/Data/" + state + "/" + file[:-4] + suffix+".csv")
 
                 except Exception:
                     print("FILE FAILED: "+file+"\n")
@@ -88,8 +94,13 @@ def eraseNan(features):
 
         features.iloc[:, col] = lst
     #df.to_csv(state+"/"+state+".csv")
-    return features
+    return eraseUnnamed(features)
 
+def eraseUnnamed(features):
+    for label in features.columns.values:
+        if label.startswith("Unnamed:"):
+            features = features.drop([label], axis = 1)
+    return features
 
 def concatenateData(people, suffix = ""):
     """
@@ -106,8 +117,14 @@ def concatenateData(people, suffix = ""):
             for file in files:
                 if not file[(-4-len(suffix)):] == suffix+".csv":
                     continue
+                if suffix == "" and file[-5:] == "c.csv":
+                     continue
+                if file == "All"+suffix+".csv":
+                    continue
+                print("~~~          CONCATENATING FILE: "+file+" ~~~")
                 dataframes.append(pd.read_csv(person + "/Data/" + state + "/" + file))
 
             result = pd.concat(dataframes, axis = 0, sort = True)
             result.to_csv(person + "/Data/" + state + "/All"+suffix+".csv")
+            print("~~~ FINAL DIMENSIONS: "+str(result.shape)+" ~~~")
             #return result

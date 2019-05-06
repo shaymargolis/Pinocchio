@@ -112,7 +112,7 @@ class SixtyEightInterpreter:
 
         return result
 
-    def getEyeFeatures(self, result, frame, show = False):
+    def getEyeFeatures(self, result, frame):
         left, left_mc, right, right_mc = IrisDetector().get_face_irises(frame, result[0][36:42], result[0][42:48])
 
         left_iris, right_iris, theta = [np.nan, np.nan], [np.nan, np.nan], np.nan
@@ -121,8 +121,7 @@ class SixtyEightInterpreter:
             left_iris = left[0]
             right_iris = right[0]
 
-            if show:
-                cv2.circle(frame, tuple(left[0]), 2, (0, 0, 255), -1)
-                cv2.circle(frame, tuple(right[0]), 2, (0, 0, 255), -1)
+            cv2.circle(frame, tuple(left[0]), 2, (0, 0, 255), -1)
+            cv2.circle(frame, tuple(right[0]), 2, (0, 0, 255), -1)
 
         return np.array([left_mc, left_iris, right_mc, right_iris])

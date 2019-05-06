@@ -117,8 +117,11 @@ def concatenateData(people, suffix = ""):
             for file in files:
                 if not file[(-4-len(suffix)):] == suffix+".csv":
                     continue
+<<<<<<< HEAD
                 if suffix == "" and file[-5:] == "c.csv":
                      continue
+=======
+>>>>>>> 31de19ded7432846512e3108b4664f775b573650
                 if file == "All"+suffix+".csv":
                     continue
                 print("~~~          CONCATENATING FILE: "+file+" ~~~")

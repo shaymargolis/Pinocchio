@@ -48,8 +48,11 @@ def features_euclidean_dists(features):
 
             x0, y0, x1, y1 = features[str(k)+"x"], features[str(k)+"y"], features[str(p)+"x"], features[str(p)+"y"]
 
-            result[k+" DIST FROM "+p] = (x0-x1)**2+(y0-y1)**2
-            pg.update()
+            result[str(i+1)+"DIST FROM"+str(j+1)] = (x0-x1)**2+(y0-y1)**2
+
+            if j == i+1:
+                os.system("cls")
+                print(100*(i*len(ind)+j)/(len(ind)**2))
 
     pg.close()
     return result

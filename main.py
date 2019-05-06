@@ -94,10 +94,39 @@ print(feature_importances)
 5
 model.print_accuracy(X_test, Y_test)"""
 
+#  UNIVERSAL
+
+trainModel.trainPersonalizedMethod(
+    ["Nadav_Finkel", "Roy_Amir", "Topaz_Enbar", "Oded_Kaplan", "Raziel_Gartzman"],
+    ["Raveh_Shulman"],
+    "Net1",
+    label="raveh",
+    suffix="_euc"
+)
+
+trainModel.testPersonalizedMethod("raveh", ["Raveh_Shulman"], suffix = "_euc")
+
+#  FILTER FILE OLD
+#
+
+
+person = "Nadav_Finkel"
+X_train, Y_train, X_test, Y_test = trainModel.train_test_person(person, suffix = "_euc", test_size=0.3)
+
+lm = test.analyze(X_train, Y_train, X_test, Y_test)
+
+feature_importances = pd.DataFrame(lm.lm.coef_[0],
+                               index = X_train.columns,
+                               columns=['importance']).sort_values('importance', ascending=False)
+
+print(feature_importances)
+
+#  FILTER FILES OLD + TODAY
+
 def filter_files(files):
     return list(filter(lambda x: ("All" not in x) and x.endswith("_euc.csv"), files))
 
-person = "Nadav_Finkel"
+person = "Topaz_Enbar"
 X_train1, Y_train1 = trainModel.read_files(person, "True", filter_files(os.listdir("Videos/New/" + person + "/Data/True")))
 X_train2, Y_train2 = trainModel.read_files(person, "False", filter_files(os.listdir("Videos/New/" + person + "/Data/False")))
 X_train, Y_train = trainModel.concatenate_true_false(X_train1, X_train2, Y_train1, Y_train2)

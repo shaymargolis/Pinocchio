@@ -28,14 +28,8 @@ class Analyzer:
 
             #  ONLY fOR NOW
             if frame is not None:
-<<<<<<< HEAD
-                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-
-                orig = frame.copy()
-=======
                 # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
                 pass
->>>>>>> 13924b5871a73bd39ced8c13d28fcde43c2b83b6
 
             #  Only analyze if the frame is not null
             if frame_index <= start_frame:

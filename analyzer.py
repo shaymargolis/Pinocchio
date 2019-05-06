@@ -27,7 +27,7 @@ class Analyzer:
 
             #  ONLY fOR NOW
             if frame is not None:
-                # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+                frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
                 orig = frame.copy()
 

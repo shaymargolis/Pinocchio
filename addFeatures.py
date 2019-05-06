@@ -38,7 +38,9 @@ def features_euclidean_dists(features):
             x0, y0, x1, y1 = features[str(k)+"x"], features[str(k)+"y"], features[str(p)+"x"], features[str(p)+"y"]
 
             result[str(i+1)+"DIST FROM"+str(j+1)] = (x0-x1)**2+(y0-y1)**2
-            os.system("cls")
-            print(100*(i*len(ind)+j)/(len(ind)**2))
+
+            if j == i+1:
+                os.system("cls")
+                print(100*(i*len(ind)+j)/(len(ind)**2))
 
     return result

@@ -22,14 +22,29 @@ class NetLearner:
 
         self.model = keras.Sequential([
             keras.layers.Dense(20, input_dim=length, activation='relu', kernel_regularizer='l2'),
-            keras.layers.Dense(10, input_dim=length, activation='relu', kernel_regularizer='l2'),
-            keras.layers.Dense(2, activation='softmax')
+            keras.layers.Dropout(0.3, noise_shape=None, seed=None),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dropout(0.2, noise_shape=None, seed=None),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(10, activation='relu', kernel_regularizer='l2'),
+            keras.layers.Dense(1, activation='sigmoid')
+            #keras.layers.Dense(10, input_dim=length, activation='linear'),
+            #keras.layers.Dense(2, input_dim=length, activation='sigmoid')
         ])
 
-        self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        # self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        self.model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     def learn(self, X_train, Y_train):
-        self.model.fit(X_train, Y_train, epochs=100)
+        self.model.fit(X_train, Y_train, epochs=1000, batch_size=20)
         self.model.save("Model/" + self.title + ".h5")
 
     def predict(self, X_test):
